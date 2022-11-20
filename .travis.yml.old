@@ -1,0 +1,29 @@
+language: generic 
+
+# require superuser privileges (needed to use docker)
+sudo: required
+
+# install docker-cli into our environment
+services:
+  - docker
+
+# commands to run before running our test
+before_install:
+  - docker build -f Dockerfile.dev -t piotrfranekjan/docker-react . 
+
+# run tests
+script:
+  - docker run -e CI=true piotrfranekjan/docker-react npm run test  
+
+# deploy
+deploy:
+  provider: elasticbeanstalk
+  region: "us-east-1"
+  app: "docker"
+  env: "Docker-env"
+  bucket_name: "elasticbeanstalk-us-east-1-499934076957"
+  bucket_path: "docker"
+  on:
+    branch: master
+  access_key_id: "$AWS_ACCESS_KEY"
+  secret_access_key: "$AWS_SECRET_KEY"  
